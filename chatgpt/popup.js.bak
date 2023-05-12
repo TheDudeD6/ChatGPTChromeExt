@@ -1,0 +1,22 @@
+// Send a request to the OpenAI API with the selected text
+function testSelectedText() {
+  chrome.tabs.executeScript({ code: "window.getSelection().toString();" }, function(selectedText) {
+    var url = "https://openai-openai-detector--5smxg.hf.space/?";
+    var data = { url: selectedText[0] };
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url + new URLSearchParams(data), true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        // Parse the response data and update the popup HTML
+        var response = JSON.parse(xhr.responseText);
+        var realProb = response.real_probability.toFixed(2);
+        var fakeProb = response.fake_probability.toFixed(2);
+        document.getElementById("result").innerHTML = "Real probability: " + realProb + "<br>" + "Fake probability: " + fakeProb;
+      }
+    };
+    xhr.send();
+  });
+}
+
+// Call testSelectedText() when the "Test Selected Text" button is clicked
+document.getElementById("test-selected-text").addEventListener("click", testSelectedText);
